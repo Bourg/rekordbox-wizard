@@ -12,12 +12,12 @@ export default function Home() {
   return (
     <>
       <nav className="border-b">
-        <div className="mx-auto flex max-w-xl items-center justify-between px-4 py-2">
+        <div className="mx-auto flex max-w-3xl items-center justify-between px-4 py-2">
           <h1 className="text-4xl font-extrabold">Rekordbox Wizard</h1>
           <ModeToggle />
         </div>
       </nav>
-      <main className="mx-auto max-w-xl space-y-8 p-4">
+      <main className="mx-auto max-w-3xl space-y-8 p-4">
         <Card>
           <CardHeader>
             <CardTitle>Database File</CardTitle>
@@ -26,8 +26,17 @@ export default function Home() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <Input type="file" accept=".xml" />
+            <Input type="file" accept=".xml" className="w-fit" />
           </CardContent>
+        </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle>Wizardry</CardTitle>
+            <CardDescription>
+              What wizardry should be done to your Rekordbox database?
+            </CardDescription>
+          </CardHeader>
+          <CardContent>Put stuff here</CardContent>
         </Card>
       </main>
     </>
