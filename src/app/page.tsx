@@ -7,6 +7,7 @@ import {
 } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import ModeToggle from '@/components/dark-mode-toggle';
+import { ColorToLabelMapping } from '@/components/transform/ColorToLabelMapping';
 
 export default function Home() {
   return (
@@ -29,15 +30,7 @@ export default function Home() {
             <Input type="file" accept=".xml" className="w-fit" />
           </CardContent>
         </Card>
-        <Card>
-          <CardHeader>
-            <CardTitle>Wizardry</CardTitle>
-            <CardDescription>
-              What wizardry should be done to your Rekordbox database?
-            </CardDescription>
-          </CardHeader>
-          <CardContent>Put stuff here</CardContent>
-        </Card>
+        <ColorToLabelMapping />
       </main>
     </>
   );
