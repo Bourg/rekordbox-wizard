@@ -30,6 +30,7 @@ export default function Home() {
       colorToLabel({
         databaseFile: values.databaseFiles[0],
         mapping: defaultColorToLabel,
+        overwriteExistingLabels: Boolean(values.overwriteExistingLabels),
       })
         .then((content) => {
           triggerXmlDownload({

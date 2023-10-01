@@ -11,7 +11,7 @@ import {
 export interface ColorToLabelInput {
   databaseFile: File;
   mapping: ColorToLabel[];
-  overwriteLabels?: boolean;
+  overwriteExistingLabels?: boolean;
 }
 
 export interface ColorToLabel {
@@ -24,6 +24,7 @@ export type RGB = [number, number, number];
 export default async function colorToLabel(
   input: ColorToLabelInput,
 ): Promise<XMLDocument> {
+  console.log(input);
   const database = await readRekordboxDatabase(input.databaseFile);
 
   applyToDatabase(database, input);
@@ -50,7 +51,7 @@ function applyToTrack(track: Element, input: ColorToLabelInput) {
 
     // Only apply to cues that already have names if setting is checked
     const cueName = getCueName(cue);
-    if (!input.overwriteLabels && cueName) {
+    if (!input.overwriteExistingLabels && cueName) {
       continue;
     }
 
