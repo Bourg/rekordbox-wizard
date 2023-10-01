@@ -15,17 +15,11 @@ import {
 } from '@/components/transform/ColorToLabelMapping';
 import { Button } from '@/components/ui/button';
 import { useForm } from 'react-hook-form';
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '@/components/ui/form';
+import { Form, FormControl, FormItem, FormLabel } from '@/components/ui/form';
 import { Toaster } from '@/components/ui/toaster';
 import { useToast } from '@/components/ui/use-toast';
 import colorToLabel from '@/lib/transform/color-to-label';
+import { triggerXmlDownload } from '@/lib/download';
 
 export default function Home() {
   const { toast } = useToast();
@@ -42,9 +36,7 @@ export default function Home() {
         databaseFile: values.databaseFiles[0],
         mapping: defaultColorToLabel,
       })
-        .then(() => {
-          /* TODO trigger download */
-        })
+        .then(triggerXmlDownload)
         .catch((error) => {
           workingToast.dismiss();
           toast({

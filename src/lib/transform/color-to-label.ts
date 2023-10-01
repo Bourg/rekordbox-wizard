@@ -22,10 +22,15 @@ export interface ColorToLabel {
 
 export type RGB = [number, number, number];
 
-export default async function colorToLabel(input: ColorToLabelInput) {
+export default async function colorToLabel(
+  input: ColorToLabelInput,
+): Promise<string> {
   const database = await readRekordboxDatabase(input.databaseFile);
 
   applyToDatabase(database, input);
+
+  // TODO move this
+  return serializeRekordboxDatabase(database);
 }
 
 function applyToDatabase(database: XMLDocument, input: ColorToLabelInput) {
