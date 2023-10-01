@@ -162,7 +162,7 @@ interface ChangelogDisplayProps {
 function ChangelogDisplay({ changelog }: ChangelogDisplayProps) {
   console.log(changelog);
   return (
-    <ul>
+    <ul className="space-y-8">
       {changelog.track.map((track) => (
         <li key={`${track.metadata.name}--${track.metadata.artist}`}>
           <Card>
@@ -171,17 +171,25 @@ function ChangelogDisplay({ changelog }: ChangelogDisplayProps) {
               <CardDescription>{track.metadata.artist}</CardDescription>
             </CardHeader>
             <CardContent>
-              <ul>
+              <ul className="inline-grid grid-cols-[auto_auto_auto_auto_auto] items-center gap-x-2 gap-y-1">
                 {
                   // TODO key
                   track.hotCues.map((hotCue, i) => (
-                    <li className="flex items-center gap-2" key={i}>
+                    <>
                       <HotCueColorChip color={hotCue.color} />
-                      {hotCue.nameBefore}
-                      <span>-&gt;</span>
+                      <span
+                        className={
+                          hotCue.nameBefore !== hotCue.nameAfter
+                            ? 'line-through'
+                            : ''
+                        }
+                      >
+                        {hotCue.nameBefore}
+                      </span>
+                      <span className="mx-2">-&gt;</span>
                       <HotCueColorChip color={hotCue.color} />
-                      {hotCue.nameAfter}
-                    </li>
+                      <span>{hotCue.nameAfter}</span>
+                    </>
                   ))
                 }
               </ul>
