@@ -9,7 +9,10 @@ import {
 } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import ModeToggle from '@/components/dark-mode-toggle';
-import { ColorToLabelMapping } from '@/components/transform/ColorToLabelMapping';
+import {
+  ColorToLabelMapping,
+  defaultColorToLabel,
+} from '@/components/transform/ColorToLabelMapping';
 import { Button } from '@/components/ui/button';
 import { useForm } from 'react-hook-form';
 import {
@@ -30,12 +33,26 @@ export default function Home() {
 
   const handleSubmit = form.handleSubmit(
     (values) => {
-      toast({
+      const workingToast = toast({
         title: 'Working on it!',
         description:
           "A download of your updated database file will start as soon as it's ready.",
       });
-      colorToLabel({ databaseFile: values.databaseFiles[0] });
+      colorToLabel({
+        databaseFile: values.databaseFiles[0],
+        mapping: defaultColorToLabel,
+      })
+        .then(() => {
+          /* TODO trigger download */
+        })
+        .catch((error) => {
+          workingToast.dismiss();
+          toast({
+            variant: 'destructive',
+            title: 'Uh oh!',
+            description: error.message ?? 'Something went wrong',
+          });
+        });
     },
     () => {
       toast({

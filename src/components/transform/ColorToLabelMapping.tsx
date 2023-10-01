@@ -8,24 +8,17 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
+import { ColorToLabel, RGB } from '@/lib/transform/color-to-label';
 
-interface Color {
-  colorName: string;
-  defaultLabel: string;
-  rgb: RGB;
-}
-
-type RGB = [number, number, number];
-
-const colors: Color[] = [
-  { colorName: 'Pink', defaultLabel: 'Intro', rgb: [222, 68, 207] },
-  { colorName: 'Lime', defaultLabel: 'Verse', rgb: [40, 226, 20] },
-  { colorName: 'Blue', defaultLabel: 'Chorus', rgb: [48, 90, 255] },
-  { colorName: 'Cyan', defaultLabel: 'Drop', rgb: [0, 224, 255] },
-  { colorName: 'Yellow', defaultLabel: 'Build', rgb: [195, 175, 4] },
-  { colorName: 'Purple', defaultLabel: 'Bridge', rgb: [180, 50, 255] },
-  { colorName: 'Orange', defaultLabel: 'Outro', rgb: [224, 100, 27] },
-  { colorName: 'Moss', defaultLabel: 'Loop', rgb: [16, 177, 118] },
+export const defaultColorToLabel: ColorToLabel[] = [
+  { label: 'Intro', color: [222, 68, 207] },
+  { label: 'Verse', color: [40, 226, 20] },
+  { label: 'Chorus', color: [48, 90, 255] },
+  { label: 'Drop', color: [0, 224, 255] },
+  { label: 'Build', color: [195, 175, 4] },
+  { label: 'Bridge', color: [180, 50, 255] },
+  { label: 'Outro', color: [224, 100, 27] },
+  { label: 'Loop', color: [16, 177, 118] },
 ];
 
 export interface ColorToLabelMappingProps {}
@@ -41,16 +34,16 @@ export function ColorToLabelMapping({}: ColorToLabelMappingProps) {
       </CardHeader>
       <CardContent>
         <ul className="flex flex-wrap gap-4">
-          {colors.map(({ colorName, defaultLabel, rgb }) => (
+          {defaultColorToLabel.map(({ label, color }) => (
             <li
-              key={colorName}
+              key={label}
               className="flex items-stretch justify-center overflow-clip rounded border"
             >
               <div
                 className="w-8 px-2 py-1"
-                style={{ backgroundColor: toCssRgb(rgb) }}
+                style={{ backgroundColor: toCssRgb(color) }}
               ></div>
-              <div className="px-2 py-1 text-sm">{defaultLabel}</div>
+              <div className="px-2 py-1 text-sm">{label}</div>
             </li>
           ))}
         </ul>

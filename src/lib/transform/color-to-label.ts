@@ -1,32 +1,74 @@
-interface ColorToLabelInput {
+import {
+  getAllCuesInTrack,
+  getAllTracks,
+  getCueColor,
+  getCueName,
+  isHotCue,
+  readRekordboxDatabase,
+  serializeRekordboxDatabase,
+  setCueName,
+} from '@/lib/rekordbox-database';
+
+export interface ColorToLabelInput {
   databaseFile: File;
+  mapping: ColorToLabel[];
+  overwriteLabels?: boolean;
 }
 
-export default async function colorToLabel({
-  databaseFile,
-}: ColorToLabelInput) {
-  const databaseText = await readFileAsText(databaseFile);
-  console.log(databaseText);
+export interface ColorToLabel {
+  color: RGB;
+  label: string;
 }
 
-// TODO extract
-function readFileAsText(file: File): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const fileReader = new FileReader();
+export type RGB = [number, number, number];
 
-    fileReader.onload = (e) => {
-      const result = e.target?.result;
-      if (typeof result !== 'string') {
-        reject(new Error('File read to non-string type'));
-      } else {
-        resolve(result);
-      }
-    };
+export default async function colorToLabel(input: ColorToLabelInput) {
+  const database = await readRekordboxDatabase(input.databaseFile);
 
-    fileReader.onerror = () => {
-      reject(fileReader.error);
-    };
+  applyToDatabase(database, input);
+}
 
-    fileReader.readAsText(file);
-  });
+function applyToDatabase(database: XMLDocument, input: ColorToLabelInput) {
+  const tracks = getAllTracks(database);
+
+  for (let track of tracks) {
+    applyToTrack(track, input);
+  }
+}
+
+function applyToTrack(track: Element, input: ColorToLabelInput) {
+  const cues = getAllCuesInTrack(track);
+
+  for (let cue of cues) {
+    // Only apply to hot cues
+    if (!isHotCue(cue)) {
+      continue;
+    }
+
+    // Only apply to cues that already have names if setting is checked
+    const cueName = getCueName(cue);
+    if (!input.overwriteLabels && cueName) {
+      continue;
+    }
+
+    // Only apply to cues that have colors
+    const rgb = getCueColor(cue);
+    if (rgb == null) {
+      continue;
+    }
+
+    const label = findLabelForColor(rgb, input.mapping);
+    if (label) {
+      setCueName(cue, label);
+    }
+  }
+}
+
+function findLabelForColor(color: RGB, mappings: ColorToLabel[]) {
+  return mappings.find((mapping) => colorsAreEqual(color, mapping.color))
+    ?.label;
+}
+
+function colorsAreEqual([r1, g1, b1]: RGB, [r2, g2, b2]: RGB) {
+  return r1 === r2 && g1 === g2 && b1 === b2;
 }
