@@ -12,6 +12,7 @@ import ModeToggle from '@/components/dark-mode-toggle';
 import {
   ColorToLabelMapping,
   defaultColorToLabel,
+  toCssRgb,
 } from '@/components/transform/ColorToLabelMapping';
 import { Button } from '@/components/ui/button';
 import { useForm } from 'react-hook-form';
@@ -148,10 +149,38 @@ export default function Home() {
             <Button type="submit">Go!</Button>
           </form>
         </Form>
-        {lastChangelog ? (
-          <pre>{JSON.stringify(lastChangelog, null, 2)}</pre>
-        ) : null}
+        {lastChangelog ? <ChangelogDisplay changelog={lastChangelog} /> : null}
       </main>
     </>
+  );
+}
+
+interface ChangelogDisplayProps {
+  changelog: Changelog;
+}
+
+function ChangelogDisplay({ changelog }: ChangelogDisplayProps) {
+  return (
+    <ul>
+      {changelog.track.map((track) => (
+        <li key={`${track.metadata.name}--${track.metadata.artist}`}>
+          {track.metadata.name} - {track.metadata.artist}
+          <ul>
+            {
+              // TODO key
+              track.hotCues.map((hotCue, i) => (
+                <li className="ml-8 flex items-center" key={i}>
+                  <span
+                    className="mr-2 h-4 w-4 rounded"
+                    style={{ backgroundColor: toCssRgb(hotCue.color) }}
+                  />
+                  {hotCue.nameBefore || 'No name'} -&gt; {hotCue.nameAfter}
+                </li>
+              ))
+            }
+          </ul>
+        </li>
+      ))}
+    </ul>
   );
 }

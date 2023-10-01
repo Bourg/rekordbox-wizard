@@ -72,6 +72,6 @@ export function ColorToLabelMapping({}: ColorToLabelMappingProps) {
   );
 }
 
-function toCssRgb([red, green, blue]: RGB) {
+export function toCssRgb([red, green, blue]: RGB) {
   return `rgb(${red} ${green} ${blue})`;
 }
