@@ -8,7 +8,6 @@ import {
   readRekordboxDatabase,
   setCueName,
 } from '@/lib/rekordbox-database';
-import { parseISO } from 'date-fns';
 
 export interface ColorToLabelInput {
   databaseFile: File;
@@ -48,15 +47,17 @@ function applyToDatabase(database: XMLDocument, input: ColorToLabelInput) {
 function applyToTrack(track: Element, input: ColorToLabelInput) {
   const cues = getAllCuesInTrack(track);
 
-  for (let cue of cues) {
+  // Take two passes over the cues:
+  //  - Pass 1: Identify what names should be given and count occurrences
+  //  - Pass 2: Apply names
+
+  const countByLabel = new Map<string, number>();
+  const labelByIndex = new Map<number, string>();
+  for (let i = 0; i < cues.length; i++) {
+    const cue = cues.item(i);
+
     // Only apply to hot cues
     if (!isHotCue(cue)) {
-      continue;
-    }
-
-    // Only apply to cues that already have names if setting is checked
-    const cueName = getCueName(cue);
-    if (!input.overwriteExistingLabels && cueName) {
       continue;
     }
 
@@ -68,7 +69,36 @@ function applyToTrack(track: Element, input: ColorToLabelInput) {
 
     const label = findLabelForColor(rgb, input.mapping);
     if (label) {
-      setCueName(cue, label);
+      labelByIndex.set(i, label);
+
+      const previousCountForLabel = countByLabel.get(label) ?? 0;
+      countByLabel.set(label, previousCountForLabel + 1);
+    }
+  }
+
+  const appliedCountByLabel = new Map<string, number>();
+  for (let i = 0; i < cues.length; i++) {
+    const cue = cues.item(i);
+
+    // Only apply to cues that already have names if setting is checked
+    const cueName = getCueName(cue);
+    if (!input.overwriteExistingLabels && cueName) {
+      continue;
+    }
+
+    const label = labelByIndex.get(i);
+    if (label != null) {
+      const countForLabel = countByLabel.get(label) ?? 1;
+      if (countForLabel > 1) {
+        // If there are multiple of this kind, serialize the labels
+        const appliedCountForLabel = appliedCountByLabel.get(label) ?? 0;
+        const nextAppliedCount = appliedCountForLabel + 1;
+        setCueName(cue, `${label} ${nextAppliedCount}`);
+        appliedCountByLabel.set(label, nextAppliedCount);
+      } else {
+        // If there's just one of this kind, use the label directly
+        setCueName(cue, label);
+      }
     }
   }
 }
