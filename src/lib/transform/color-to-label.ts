@@ -5,7 +5,6 @@ import {
   getCueName,
   isHotCue,
   readRekordboxDatabase,
-  serializeRekordboxDatabase,
   setCueName,
 } from '@/lib/rekordbox-database';
 
@@ -24,13 +23,12 @@ export type RGB = [number, number, number];
 
 export default async function colorToLabel(
   input: ColorToLabelInput,
-): Promise<string> {
+): Promise<XMLDocument> {
   const database = await readRekordboxDatabase(input.databaseFile);
 
   applyToDatabase(database, input);
 
-  // TODO move this
-  return serializeRekordboxDatabase(database);
+  return database;
 }
 
 function applyToDatabase(database: XMLDocument, input: ColorToLabelInput) {

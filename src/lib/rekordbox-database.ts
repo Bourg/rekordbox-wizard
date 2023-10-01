@@ -47,12 +47,6 @@ export function parseRekordboxDatabase(databaseContents: string): XMLDocument {
   return databaseDocument;
 }
 
-export function serializeRekordboxDatabase(database: XMLDocument): string {
-  const xmlSerializer = new XMLSerializer();
-
-  return xmlSerializer.serializeToString(database);
-}
-
 export function getAllTracks(database: XMLDocument) {
   return database.querySelectorAll('COLLECTION TRACK');
 }

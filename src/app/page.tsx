@@ -27,18 +27,17 @@ export default function Home() {
 
   const handleSubmit = form.handleSubmit(
     (values) => {
-      const workingToast = toast({
-        title: 'Working on it!',
-        description:
-          "A download of your updated database file will start as soon as it's ready.",
-      });
       colorToLabel({
         databaseFile: values.databaseFiles[0],
         mapping: defaultColorToLabel,
       })
-        .then(triggerXmlDownload)
+        .then((content) => {
+          triggerXmlDownload({
+            content,
+            filename: 'rekordbox-database.xml',
+          });
+        })
         .catch((error) => {
-          workingToast.dismiss();
           toast({
             variant: 'destructive',
             title: 'Uh oh!',
