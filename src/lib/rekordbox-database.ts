@@ -66,6 +66,18 @@ export function getAllTracks(database: XMLDocument) {
   return database.querySelectorAll('COLLECTION TRACK');
 }
 
+export interface TrackMetadata {
+  name: string | null;
+  artist: string | null;
+}
+
+export function getTrackMetadata(track: Element): TrackMetadata {
+  const name = track.getAttribute('Name') ?? null;
+  const artist = track.getAttribute('Artist') ?? null;
+
+  return { name, artist };
+}
+
 export function getAllCuesInTrack(track: Element) {
   return track.querySelectorAll('POSITION_MARK');
 }
