@@ -1,4 +1,5 @@
 import { RGB } from '@/lib/transform/color-to-label';
+import { parseISO } from 'date-fns';
 
 export async function readRekordboxDatabase(file: File): Promise<XMLDocument> {
   const databaseContents = await readFileAsText(file);
@@ -45,6 +46,20 @@ export function parseRekordboxDatabase(databaseContents: string): XMLDocument {
   }
 
   return databaseDocument;
+}
+
+export function getTrackDateAdded(track: Element): Date {
+  const dateAddedString = track.getAttribute('DateAdded');
+  if (dateAddedString == null) {
+    throw new Error('Track is missing DateAdded');
+  }
+
+  const dateAdded = parseISO(dateAddedString);
+  if (isNaN(dateAdded.getDate())) {
+    throw new Error(`Track has impossible DateAdded '${dateAddedString}'`);
+  }
+
+  return dateAdded;
 }
 
 export function getAllTracks(database: XMLDocument) {

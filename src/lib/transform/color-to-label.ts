@@ -3,13 +3,16 @@ import {
   getAllTracks,
   getCueColor,
   getCueName,
+  getTrackDateAdded,
   isHotCue,
   readRekordboxDatabase,
   setCueName,
 } from '@/lib/rekordbox-database';
+import { parseISO } from 'date-fns';
 
 export interface ColorToLabelInput {
   databaseFile: File;
+  startDate: Date;
   mapping: ColorToLabel[];
   overwriteExistingLabels?: boolean;
 }
@@ -24,7 +27,6 @@ export type RGB = [number, number, number];
 export default async function colorToLabel(
   input: ColorToLabelInput,
 ): Promise<XMLDocument> {
-  console.log(input);
   const database = await readRekordboxDatabase(input.databaseFile);
 
   applyToDatabase(database, input);
@@ -36,7 +38,10 @@ function applyToDatabase(database: XMLDocument, input: ColorToLabelInput) {
   const tracks = getAllTracks(database);
 
   for (let track of tracks) {
-    applyToTrack(track, input);
+    const dateAdded = getTrackDateAdded(track);
+    if (dateAdded >= input.startDate) {
+      applyToTrack(track, input);
+    }
   }
 }
 

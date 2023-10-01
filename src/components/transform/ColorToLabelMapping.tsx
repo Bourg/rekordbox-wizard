@@ -4,7 +4,6 @@ import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
@@ -39,7 +38,7 @@ export function ColorToLabelMapping({}: ColorToLabelMappingProps) {
           Apply labels to hot cues based on the color of the hot cue
         </CardDescription>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-6">
         <ul className="flex flex-wrap gap-4">
           {defaultColorToLabel.map(({ label, color }) => (
             <li
@@ -69,7 +68,6 @@ export function ColorToLabelMapping({}: ColorToLabelMappingProps) {
           )}
         />
       </CardContent>
-      <CardFooter>Customizable mappings coming in a future version</CardFooter>
     </Card>
   );
 }
