@@ -27,7 +27,7 @@ import {
 } from '@/components/ui/form';
 import { Toaster } from '@/components/ui/toaster';
 import { useToast } from '@/components/ui/use-toast';
-import colorToLabel, { Changelog } from '@/lib/transform/color-to-label';
+import colorToLabel, { Changelog, RGB } from '@/lib/transform/color-to-label';
 import { triggerXmlDownload } from '@/lib/download';
 import {
   Popover,
@@ -160,30 +160,46 @@ interface ChangelogDisplayProps {
 }
 
 function ChangelogDisplay({ changelog }: ChangelogDisplayProps) {
+  console.log(changelog);
   return (
     <ul>
       {changelog.track.map((track) => (
         <li key={`${track.metadata.name}--${track.metadata.artist}`}>
-          {track.metadata.name} - {track.metadata.artist}
-          <ul>
-            {
-              // TODO key
-              track.hotCues.map((hotCue, i) => (
-                <li className="ml-8 flex items-center" key={i}>
-                  <span
-                    className="mr-2 h-4 w-4 rounded"
-                    style={{
-                      backgroundColor:
-                        hotCue.color == null ? 'black' : toCssRgb(hotCue.color),
-                    }}
-                  />
-                  {hotCue.nameBefore || 'No name'} -&gt; {hotCue.nameAfter}
-                </li>
-              ))
-            }
-          </ul>
+          <Card>
+            <CardHeader>
+              <CardTitle>{track.metadata.name}</CardTitle>
+              <CardDescription>{track.metadata.artist}</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ul>
+                {
+                  // TODO key
+                  track.hotCues.map((hotCue, i) => (
+                    <li className="flex items-center gap-2" key={i}>
+                      <HotCueColorChip color={hotCue.color} />
+                      {hotCue.nameBefore}
+                      <span>-&gt;</span>
+                      <HotCueColorChip color={hotCue.color} />
+                      {hotCue.nameAfter}
+                    </li>
+                  ))
+                }
+              </ul>
+            </CardContent>
+          </Card>
         </li>
       ))}
     </ul>
+  );
+}
+
+function HotCueColorChip({ color }: { color: RGB | null }) {
+  return (
+    <span
+      className="h-4 w-4 rounded"
+      style={{
+        backgroundColor: color == null ? 'black' : toCssRgb(color),
+      }}
+    />
   );
 }
