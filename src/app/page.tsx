@@ -172,7 +172,10 @@ function ChangelogDisplay({ changelog }: ChangelogDisplayProps) {
                 <li className="ml-8 flex items-center" key={i}>
                   <span
                     className="mr-2 h-4 w-4 rounded"
-                    style={{ backgroundColor: toCssRgb(hotCue.color) }}
+                    style={{
+                      backgroundColor:
+                        hotCue.color == null ? 'black' : toCssRgb(hotCue.color),
+                    }}
                   />
                   {hotCue.nameBefore || 'No name'} -&gt; {hotCue.nameAfter}
                 </li>
