@@ -49,9 +49,10 @@ export default function Home() {
         mapping: defaultColorToLabel,
         overwriteExistingLabels: Boolean(values.overwriteExistingLabels),
       })
-        .then((content) => {
+        .then(({ database, changelog }) => {
+          console.log('CHANGELOG', changelog);
           triggerXmlDownload({
-            content,
+            content: database,
             filename: 'rekordbox-database.xml',
           });
         })

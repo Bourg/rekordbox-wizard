@@ -16,6 +16,25 @@ export interface ColorToLabelInput {
   overwriteExistingLabels?: boolean;
 }
 
+export interface ColorToLabelOutput {
+  database: XMLDocument;
+  changelog: Changelog;
+}
+
+export interface Changelog {
+  track: TrackChangelog[];
+}
+
+export interface TrackChangelog {
+  hotCues: HotCueChangelog[];
+}
+
+export interface HotCueChangelog {
+  color: RGB | null;
+  nameBefore: string | null;
+  nameAfter: string | null;
+}
+
 export interface ColorToLabel {
   color: RGB;
   label: string;
@@ -25,32 +44,45 @@ export type RGB = [number, number, number];
 
 export default async function colorToLabel(
   input: ColorToLabelInput,
-): Promise<XMLDocument> {
+): Promise<ColorToLabelOutput> {
   const database = await readRekordboxDatabase(input.databaseFile);
 
-  applyToDatabase(database, input);
+  const changelog = applyToDatabase(database, input);
 
-  return database;
+  return { database, changelog };
 }
 
-function applyToDatabase(database: XMLDocument, input: ColorToLabelInput) {
+function applyToDatabase(
+  database: XMLDocument,
+  input: ColorToLabelInput,
+): Changelog {
   const tracks = getAllTracks(database);
+  const changelog: Changelog = { track: [] };
 
   for (let track of tracks) {
     const dateAdded = getTrackDateAdded(track);
     if (dateAdded >= input.startDate) {
-      applyToTrack(track, input);
+      const trackChangelog = applyToTrack(track, input);
+      if (trackChangelog) {
+        changelog.track.push(trackChangelog);
+      }
     }
   }
+
+  return changelog;
 }
 
-function applyToTrack(track: Element, input: ColorToLabelInput) {
+function applyToTrack(
+  track: Element,
+  input: ColorToLabelInput,
+): TrackChangelog | null {
   const cues = getAllCuesInTrack(track);
+  const changelog: TrackChangelog = { hotCues: [] };
+  let hasChanges = false;
 
   // Take two passes over the cues:
   //  - Pass 1: Identify what names should be given and count occurrences
   //  - Pass 2: Apply names
-
   const countByLabel = new Map<string, number>();
   const labelByIndex = new Map<number, string>();
   for (let i = 0; i < cues.length; i++) {
@@ -79,28 +111,61 @@ function applyToTrack(track: Element, input: ColorToLabelInput) {
   const appliedCountByLabel = new Map<string, number>();
   for (let i = 0; i < cues.length; i++) {
     const cue = cues.item(i);
+    if (!isHotCue(cue)) {
+      continue;
+    }
+
+    const color = getCueColor(cue);
 
     // Only apply to cues that already have names if setting is checked
     const cueName = getCueName(cue);
     if (!input.overwriteExistingLabels && cueName) {
+      changelog.hotCues.push({
+        color,
+        nameBefore: cueName,
+        nameAfter: cueName,
+      });
       continue;
     }
 
     const label = labelByIndex.get(i);
     if (label != null) {
       const countForLabel = countByLabel.get(label) ?? 1;
+
       if (countForLabel > 1) {
         // If there are multiple of this kind, serialize the labels
         const appliedCountForLabel = appliedCountByLabel.get(label) ?? 0;
         const nextAppliedCount = appliedCountForLabel + 1;
-        setCueName(cue, `${label} ${nextAppliedCount}`);
+        const serializedLabel = `${label} ${nextAppliedCount}`;
         appliedCountByLabel.set(label, nextAppliedCount);
+
+        changelog.hotCues.push({
+          color,
+          nameBefore: cueName,
+          nameAfter: serializedLabel,
+        });
+        hasChanges = hasChanges || cueName != serializedLabel;
+        setCueName(cue, serializedLabel);
       } else {
         // If there's just one of this kind, use the label directly
+        changelog.hotCues.push({
+          color,
+          nameBefore: cueName,
+          nameAfter: label,
+        });
+        hasChanges = hasChanges || cueName !== label;
         setCueName(cue, label);
       }
+    } else {
+      changelog.hotCues.push({
+        color,
+        nameBefore: cueName,
+        nameAfter: cueName,
+      });
     }
   }
+
+  return hasChanges ? changelog : null;
 }
 
 function findLabelForColor(color: RGB, mappings: ColorToLabel[]) {
