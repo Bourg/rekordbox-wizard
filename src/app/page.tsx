@@ -22,18 +22,20 @@ import {
 } from '@/components/ui/form';
 import { Toaster } from '@/components/ui/toaster';
 import { useToast } from '@/components/ui/use-toast';
+import colorToLabel from '@/lib/transform/color-to-label';
 
 export default function Home() {
   const { toast } = useToast();
   const form = useForm();
 
   const handleSubmit = form.handleSubmit(
-    (form) => {
+    (values) => {
       toast({
         title: 'Working on it!',
         description:
           "A download of your updated database file will start as soon as it's ready.",
       });
+      colorToLabel({ databaseFile: values.databaseFiles[0] });
     },
     () => {
       toast({
@@ -63,24 +65,18 @@ export default function Home() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <FormField
-                  name="databaseFile"
-                  rules={{ required: 'Pick a database file' }}
-                  render={({ field, fieldState }) => (
-                    <FormItem>
-                      <FormLabel>Database File</FormLabel>
-                      <FormControl>
-                        <Input
-                          type="file"
-                          accept=".xml"
-                          className="w-fit"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                ></FormField>
+                <FormItem>
+                  <FormLabel>Database File</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="file"
+                      accept=".xml"
+                      required
+                      className="w-fit"
+                      {...form.register('databaseFiles')}
+                    />
+                  </FormControl>
+                </FormItem>
               </CardContent>
             </Card>
             <ColorToLabelMapping />
