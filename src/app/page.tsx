@@ -171,28 +171,25 @@ function ChangelogDisplay({ changelog }: ChangelogDisplayProps) {
               <CardDescription>{track.metadata.artist}</CardDescription>
             </CardHeader>
             <CardContent>
-              <ul className="inline-grid grid-cols-[auto_auto_auto_auto_auto] items-center gap-x-2 gap-y-1">
+              <div className="inline-grid grid-cols-[auto_auto_auto_auto_auto_auto] items-center gap-x-2 gap-y-1">
                 {
                   // TODO key
-                  track.hotCues.map((hotCue, i) => (
-                    <>
-                      <HotCueColorChip color={hotCue.color} />
-                      <span
-                        className={
-                          hotCue.nameBefore !== hotCue.nameAfter
-                            ? 'line-through'
-                            : ''
-                        }
-                      >
-                        {hotCue.nameBefore}
-                      </span>
-                      <span className="mx-2">-&gt;</span>
-                      <HotCueColorChip color={hotCue.color} />
-                      <span>{hotCue.nameAfter}</span>
-                    </>
-                  ))
+                  track.hotCues.map((hotCue) => {
+                    const changed = hotCue.nameBefore !== hotCue.nameAfter;
+
+                    return (
+                      <>
+                        <span>{changed ? '*' : ''}</span>
+                        <HotCueColorChip color={hotCue.color} />
+                        <span>{hotCue.nameBefore}</span>
+                        <span className="mx-2">-&gt;</span>
+                        <HotCueColorChip color={hotCue.color} />
+                        <span>{hotCue.nameAfter}</span>
+                      </>
+                    );
+                  })
                 }
-              </ul>
+              </div>
             </CardContent>
           </Card>
         </li>
