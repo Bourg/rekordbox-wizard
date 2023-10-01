@@ -26,7 +26,7 @@ import {
 } from '@/components/ui/form';
 import { Toaster } from '@/components/ui/toaster';
 import { useToast } from '@/components/ui/use-toast';
-import colorToLabel from '@/lib/transform/color-to-label';
+import colorToLabel, { Changelog } from '@/lib/transform/color-to-label';
 import { triggerXmlDownload } from '@/lib/download';
 import {
   Popover,
@@ -36,10 +36,12 @@ import {
 import { CalendarIcon } from 'lucide-react';
 import { Calendar } from '@/components/ui/calendar';
 import { format } from 'date-fns';
+import { startTransition, useState } from 'react';
 
 export default function Home() {
   const { toast } = useToast();
   const form = useForm();
+  const [lastChangelog, setLastChangelog] = useState<Changelog | null>(null);
 
   const handleSubmit = form.handleSubmit(
     (values) => {
@@ -50,7 +52,9 @@ export default function Home() {
         overwriteExistingLabels: Boolean(values.overwriteExistingLabels),
       })
         .then(({ database, changelog }) => {
-          console.log('CHANGELOG', changelog);
+          startTransition(() => {
+            setLastChangelog(changelog);
+          });
           triggerXmlDownload({
             content: database,
             filename: 'rekordbox-database.xml',
@@ -144,6 +148,9 @@ export default function Home() {
             <Button type="submit">Go!</Button>
           </form>
         </Form>
+        {lastChangelog ? (
+          <pre>{JSON.stringify(lastChangelog, null, 2)}</pre>
+        ) : null}
       </main>
     </>
   );

@@ -4,9 +4,11 @@ import {
   getCueColor,
   getCueName,
   getTrackDateAdded,
+  getTrackMetadata,
   isHotCue,
   readRekordboxDatabase,
   setCueName,
+  TrackMetadata,
 } from '@/lib/rekordbox-database';
 
 export interface ColorToLabelInput {
@@ -26,6 +28,7 @@ export interface Changelog {
 }
 
 export interface TrackChangelog {
+  metadata: TrackMetadata;
   hotCues: HotCueChangelog[];
 }
 
@@ -77,7 +80,10 @@ function applyToTrack(
   input: ColorToLabelInput,
 ): TrackChangelog | null {
   const cues = getAllCuesInTrack(track);
-  const changelog: TrackChangelog = { hotCues: [] };
+  const changelog: TrackChangelog = {
+    metadata: getTrackMetadata(track),
+    hotCues: [],
+  };
   let hasChanges = false;
 
   // Take two passes over the cues:
