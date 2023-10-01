@@ -38,6 +38,14 @@ import { CalendarIcon } from 'lucide-react';
 import { Calendar } from '@/components/ui/calendar';
 import { format } from 'date-fns';
 import { startTransition, useState } from 'react';
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from '@/components/ui/sheet';
 
 export default function Home() {
   const { toast } = useToast();
@@ -146,10 +154,14 @@ export default function Home() {
               </CardContent>
             </Card>
             <ColorToLabelMapping />
-            <Button type="submit">Go!</Button>
+            <div className="flex items-center gap-2">
+              <Button type="submit">Go!</Button>
+              {lastChangelog ? (
+                <ChangelogDisplaySheet changelog={lastChangelog} />
+              ) : null}
+            </div>
           </form>
         </Form>
-        {lastChangelog ? <ChangelogDisplay changelog={lastChangelog} /> : null}
       </main>
     </>
   );
@@ -159,15 +171,37 @@ interface ChangelogDisplayProps {
   changelog: Changelog;
 }
 
+function ChangelogDisplaySheet({ changelog }: ChangelogDisplayProps) {
+  return (
+    <Sheet>
+      <SheetTrigger asChild>
+        <Button variant="secondary">View changelog</Button>
+      </SheetTrigger>
+      <SheetContent className="overflow-auto sm:max-w-lg">
+        <SheetHeader>
+          <SheetTitle>Changelog</SheetTitle>
+          <SheetDescription>
+            These are all of the changes that were made to your Rekordbox
+            database
+          </SheetDescription>
+        </SheetHeader>
+        <div className="mt-6">
+          <ChangelogDisplay changelog={changelog} />
+        </div>
+      </SheetContent>
+    </Sheet>
+  );
+}
+
 function ChangelogDisplay({ changelog }: ChangelogDisplayProps) {
   console.log(changelog);
   return (
-    <ul className="space-y-8">
+    <ul className="space-y-4">
       {changelog.track.map((track) => (
         <li key={`${track.metadata.name}--${track.metadata.artist}`}>
           <Card>
             <CardHeader>
-              <CardTitle>{track.metadata.name}</CardTitle>
+              <CardTitle className="text-xl">{track.metadata.name}</CardTitle>
               <CardDescription>{track.metadata.artist}</CardDescription>
             </CardHeader>
             <CardContent>
